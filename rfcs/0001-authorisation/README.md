@@ -32,8 +32,8 @@ determine which operations are authorized, when processing the custom resources 
 
 In general, **Kubernetes API operations are constrained by the service account under which each
 controller pod runs**. In the [default deployment of Flux][flux-rbac] each controller has its own
-service account, and each of these service accounts has the [`cluster-admin` cluster
-role][k8s-cluster-admin] bound to it.
+service account; and, the service accounts for the Kustomize controller and Helm controller have the
+[`cluster-admin` cluster role][k8s-cluster-admin] bound to it.
 
 Both the Kustomize controller and the Helm controller create, update and delete arbitrary sets of
 configuration that they take as user input. For example, a Kustomization object that references a
