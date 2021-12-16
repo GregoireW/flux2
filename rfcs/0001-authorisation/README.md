@@ -5,8 +5,6 @@
 This RFC describes in detail, for [Flux version 0.24][] (Nov 2021), how Flux determines which
 operations are allowed to proceed, and how this interacts with Kubernetes' access control.
 
-
-
 ## Motivation
 
 To this point, the Flux project has provided [examples of how to make a multi-tenant
@@ -129,6 +127,28 @@ applies additional access control, as given in the referenced `ImageRepository`:
 [`.spec.accessFrom`][access-from-ref] grants access to the namespaces selected therein. Access is
 denied unless granted.
 
+## Security considerations
+
+### Impersonation is optional
+
+Flux does not insist on a service account to be supplied in `Kustomization` and `HelmRelease`
+specifications, and the default is to use the controller's service account. That means a user with
+the ability to create either of those objects can trivially arrange for a configuration to be
+applied with the controller service account, which in the default deployment of Flux will have
+`cluster-admin` bound to it. This represents a privilege escalation vulnerability in the default
+deployment of Flux. To guard against it, an admission controller can be used to make the
+`.spec.serviceAccountName` field mandatory; an example which uses Kyverno is given in [the
+multi-tenancy implementation][multi-tenancy-eg].
+
+### Cross-namespace references side-step namespace isolation
+
+`HelmRelease` and `Kustomization` objects can refer to `GitRepository`, `HelmRepository`, or
+`Bucket` (collectively "sources") in any other namespace. The referenced objects are accessed
+through the controller's service account, which by default has `cluster-admin` bound to it. This
+means all sources in a cluster are by default usable as a synced configuration, from any
+namespace. To restrict access, an admission controller can be used to block cross-namespace
+references; the [example using Kyverno][multi-tenancy-eg] from above also does this.
+
 ## References
 
 -  [CVE-2021-41254](https://github.com/fluxcd/kustomize-controller/security/advisories/GHSA-35rf-v2jv-gfg7)
@@ -143,3 +163,4 @@ denied unless granted.
 [k8s-ns]: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
 [k8s-rbac]: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 [k8s-cluster-admin]: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
+[multi-tenancy-eg]: https://github.com/fluxcd/flux2-multi-tenancy/blob/main/infrastructure/kyverno-policies/flux-multi-tenancy.yaml
