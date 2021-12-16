@@ -1,4 +1,4 @@
-# RFC-0001 Memorandum on Flux Authorisation
+# RFC-0001 Memorandum on Flux Authorization
 
 ## Summary
 
@@ -9,26 +9,26 @@ operations are allowed to proceed, and how this interacts with Kubernetes' acces
 
 To this point, the Flux project has provided [examples of how to make a multi-tenant
 system](https://github.com/fluxcd/flux2-multi-tenancy/tree/v0.1.0), but not explained exactly how
-they relate to Flux's authorisation model; nor has the authorisation model itself been
+they relate to Flux's authorization model; nor has the authorization model itself been
 documented. Further work on support for multi-tenancy, among other things, requires a full account
-of Flux's authorisation model as a baseline.
+of Flux's authorization model as a baseline.
 
 ### Goals
 
-- Give a comprehensive account of Flux's authorisation model
+- Give a comprehensive account of Flux's authorization model
 
 ### Non-Goals
 
 - Justify the model as it stands; this RFC simply records the state as at v0.24.
 
-## Flux's authorisation model
+## Flux's authorization model
 
 The Flux controllers undertake operations as specified by custom resources of the kinds defined in
-the [Flux API][]. Most of the operations are through the Kubernetes API. Authorisation for
+the [Flux API][]. Most of the operations are through the Kubernetes API. Authorization for
 operations on external systems is not accounted for here.
 
 Flux controllers defer to [Kubernetes' native RBAC][k8s-rbac] and [namespace isolation][k8s-ns] to
-determine which operations are authorised, when processing the custom resources in the Flux API.
+determine which operations are authorized, when processing the custom resources in the Flux API.
 
 In general, **Kubernetes API operations are constrained by the service account under which each
 controller pod runs**. In the [default deployment of Flux][flux-rbac] each controller has its own
